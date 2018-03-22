@@ -7,6 +7,7 @@ import requests
 import time
 import urllib
 from DBhelper import DBHelper
+import nltk.chat.iesha as iesha
 
 # python3: urllib.parse.quote_plus
 # python2: urllib.pathname2url
@@ -18,12 +19,8 @@ db = DBHelper()
 """
 Useful commands:
 link to bot: https://api.telegram.org/bot556283248:AAGId4tLael98vEfBuJoW1DviS5Pv2bIi2Q/getme
-
-
 How to get the last text message:
 print(get_last_chat_id_and_text(updates)[0])
-
-
 """
 
 
@@ -127,3 +124,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # print(iesha.iesha_chat())
+    # iesha.demo()
+
