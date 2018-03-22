@@ -15,9 +15,9 @@ class DBHelper:
         self.conn.commit()
 
         # for start and debug reasons, drop the rhymes table before every start:
-        stmt = "DELETE FROM rhymes"
-        self.conn.execute(stmt)
-        self.conn.commit()
+        # stmt = "DELETE FROM rhymes"
+        # self.conn.execute(stmt)
+        # self.conn.commit()
 
         stmt = "SELECT words FROM rhymes"
         result = self.conn.execute(stmt)
@@ -26,8 +26,6 @@ class DBHelper:
             stmt = "CREATE TABLE IF NOT EXISTS rhymes (words text, phonemes text)"
             self.conn.execute(stmt)
             self.conn.commit()
-
-            stmt = "INSERT INTO rhymes (words, phonemes) VALUES (?, ?)"
 
             raw_data = open("dictionary.txt", 'r').readlines()
             data = []
@@ -46,7 +44,7 @@ class DBHelper:
                 data.append([words[0], ph])
 
             stmt = "INSERT INTO rhymes (words, phonemes) VALUES (?, ?)"
-            for line in data[0:10]:
+            for line in data:
                 args = (line[0], line[1],)
                 self.conn.execute(stmt, args)
             self.conn.commit()
@@ -68,8 +66,8 @@ class DBHelper:
         self.conn.commit()
 
     def get_items(self):
-        stmt = "SELECT id, description FROM items2"
+        stmt = "SELECT words, phonemes FROM rhymes"
         table = [[x, y] for x, y in self.conn.execute(stmt)]
-        ids = [x[0] for x in table]
-        texts = [y[1] for y in table]
-        return ids, texts
+        words = [x[0] for x in table]
+        phonemes = [y[1] for y in table]
+        return words, phonemes

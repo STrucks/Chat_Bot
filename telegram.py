@@ -21,6 +21,11 @@ Useful commands:
 link to bot: https://api.telegram.org/bot556283248:AAGId4tLael98vEfBuJoW1DviS5Pv2bIi2Q/getme
 How to get the last text message:
 print(get_last_chat_id_and_text(updates)[0])
+
+Useful information:
+The Dictionary has 268973 entries.
+
+
 """
 
 
@@ -55,18 +60,44 @@ def handle_updates(updates):
     for update in updates["result"]:
         try:
             text = update["message"]["text"]
+            # make the text all capital letters, bc in our db they are all capital
+            text = text.upper()
+            # we are only interested in the last word:
+            text = text.split(" ")[-1]
+            print("Text:", text)
             chat = update["message"]["chat"]["id"]
-            ids, texts = db.get_items()
-            print("ids:", ids)
-            if text in texts:
-                #db.delete_item(text)
-                ids, texts = db.get_items()
+            words, phonemes = db.get_items()
+
+            # if we have a phoneme composition of the word, use that for further work. Else, send an error message
+            if text in words:
+                ph = phonemes[words.index(text)].split(" ")
+                # in ph are the phonemes of the input word, now we want to find a word with similar phonemes:
+                best_index = 0
+                best_score = 1
+                rhymes = {}
+                for index, word in enumerate(words):
+                    ph2 = phonemes[index].split(" ")
+                    score = 0
+                    minimum = min(len(ph), len(ph2))
+                    for i in range(1, 1+minimum):
+                        if ph[-i] == ph2[-i]:
+                            score += 1
+                    if score >= 1:
+                        rhymes[word] = score
+
+                    # print(best_score, best_index)
+                rhymes = (sorted(rhymes, key=rhymes.get))
+                out = []
+                print("\n".join(rhymes))
+                # for key, value in rhymes:
+                #     out.append(value)
+                send_message("\n".join(rhymes), chat)
+
             else:
-                db.add_item(text)
-                items = db.get_items()
-            print("texts:", texts)
-            message = "\n".join(texts)
-            send_message(message, chat)
+                message = "Yo, what doz that mean?"
+                send_message(message, chat)
+                return
+
         except KeyError:
             pass
 
@@ -78,7 +109,7 @@ def show_statistics(updates):
             text = update["message"]["text"]
             chat = update["message"]["chat"]["id"]
             ids, texts = db.get_items()
-            for text in texts:
+            for text in texts[0:10]:
                 words = text.split(" ")
                 for word in words:
                     if word in stats:
@@ -116,6 +147,7 @@ def main():
             last_update_id = get_last_update_id(updates) + 1
             [text, chat_id] = get_last_chat_id_and_text(updates)
             if text == "!DropYourHottestMixtape" or text == "!stats":
+
                 show_statistics(updates)
             else:
                 handle_updates(updates)
