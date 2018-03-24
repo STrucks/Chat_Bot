@@ -2,16 +2,14 @@
 # https://www.codementor.io/garethdwyer/building-a-telegram-bot-using-python-part-1-goi5fncay
 # https://github.com/sixhobbits/python-telegram-tutorial/blob/master/part1/echobot.py
 
-import json 
+import json
 import requests
 import time
 import urllib
+import random
 from DBhelper import DBHelper
+import numpy as np
 import nltk.chat.iesha as iesha
-
-# python3: urllib.parse.quote_plus
-# python2: urllib.pathname2url
-
 TOKEN = "556283248:AAGId4tLael98vEfBuJoW1DviS5Pv2bIi2Q" # don't put this in your repo! (put in config, then import config)
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 db = DBHelper()
@@ -21,11 +19,8 @@ Useful commands:
 link to bot: https://api.telegram.org/bot556283248:AAGId4tLael98vEfBuJoW1DviS5Pv2bIi2Q/getme
 How to get the last text message:
 print(get_last_chat_id_and_text(updates)[0])
-
 Useful information:
 The Dictionary has 268973 entries.
-
-
 """
 
 
@@ -66,10 +61,11 @@ def handle_updates(updates):
             text = text.split(" ")[-1]
             print("Text:", text)
             chat = update["message"]["chat"]["id"]
-            words, phonemes = db.get_items()
+            words, phonemes = db.get_items("rhymes")
 
             # if we have a phoneme composition of the word, use that for further work. Else, send an error message
             if text in words:
+                print("thinking")
                 ph = phonemes[words.index(text)].split(" ")
                 # in ph are the phonemes of the input word, now we want to find a word with similar phonemes:
                 best_index = 0
@@ -77,23 +73,37 @@ def handle_updates(updates):
                 rhymes = {}
                 for index, word in enumerate(words):
                     ph2 = phonemes[index].split(" ")
-                    score = 0
+                    score = 1
                     minimum = min(len(ph), len(ph2))
                     for i in range(1, 1+minimum):
                         if ph[-i] == ph2[-i]:
-                            score += 1
-                    if score >= 1:
+                            score *= minimum - i + 1
+                    if score >= 2:
                         rhymes[word] = score
 
                     # print(best_score, best_index)
-                rhymes = (sorted(rhymes, key=rhymes.get))
+                max_score = max(rhymes.values())
+                rhymes_string = [word for word in rhymes if rhymes[word] == max_score]
+                # look if some word in rhymes_string matches the vocabulary of Kanye
+                row, kanye_words = db.get_items("kanye")
+                kanye_words = np.random.permutation(kanye_words)
+                target_word = ""
+                for kanye_word in kanye_words:
+                    if kanye_word.upper() in rhymes_string:
+                        kanye_lyrics = open("KanyeWest.txt", 'r', encoding='UTF-8').readlines()
+                        row_index = db.get_index("kanye", kanye_word)[0]
+                        message = kanye_lyrics[row_index : row_index+5]
+                        print(message)
+                        send_message("".join(message), chat)
+                        return
                 out = []
-                print("\n".join(rhymes))
-                # for key, value in rhymes:
-                #     out.append(value)
-                send_message("\n".join(rhymes), chat)
+                for i in range(5):
+                    out.append(rhymes_string[random.randint(0, len(rhymes_string)-1)])
+
+                send_message("\n".join(out), chat)
 
             else:
+                print("not in db")
                 message = "Yo, what doz that mean?"
                 send_message(message, chat)
                 return
@@ -158,4 +168,3 @@ if __name__ == '__main__':
     main()
     # print(iesha.iesha_chat())
     # iesha.demo()
-
