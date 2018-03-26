@@ -52,6 +52,10 @@ class DBHelper:
         else:
             print("DB already exists")
 
+        stmt = "CREATE TABLE IF NOT EXISTS kanye (row integer, word text)"
+        self.conn.execute(stmt)
+        self.conn.commit()
+
         # start building kanye db:
         # stmt = "DELETE FROM kanye"
         # self.conn.execute(stmt)
@@ -76,6 +80,37 @@ class DBHelper:
             self.conn.commit()
         else:
             print("DB kanye already exists")
+
+        # set up eminem DB
+        stmt = "CREATE TABLE IF NOT EXISTS eminem (row integer, word text)"
+        self.conn.execute(stmt)
+        self.conn.commit()
+
+        # start building kanye db:
+        # stmt = "DELETE FROM eminem"
+        # self.conn.execute(stmt)
+        # self.conn.commit()
+
+        stmt = "SELECT word FROM eminem"
+        result = self.conn.execute(stmt)
+        if result.fetchone() is None:
+            print("Create eminem DB")
+            stmt = "CREATE TABLE IF NOT EXISTS eminem (row integer, word text)"
+            self.conn.execute(stmt)
+            self.conn.commit()
+
+            raw_data = open("Eminem.txt", 'r', encoding='ISO-8859-1').readlines()
+            data = []
+            for index, line in enumerate(raw_data):
+                line = line.replace("\n", "")
+                word = line.split(" ")[-1]
+                stmt = "INSERT INTO eminem (row, word) VALUES (?, ?)"
+                args = (index, word,)
+                self.conn.execute(stmt, args)
+            self.conn.commit()
+        else:
+            print("DB eminem already exists")
+
         print("finish setting up DB")
 
 
@@ -95,7 +130,7 @@ class DBHelper:
     def get_items(self, table):
         if table == "rhymes":
             stmt = "SELECT words, phonemes FROM " + table
-        elif table == "kanye":
+        elif table == "kanye" or "eminem":
             stmt = "SELECT row, word FROM " + table
         table = [[x, y] for x, y in self.conn.execute(stmt)]
         words = [x[0] for x in table]

@@ -51,7 +51,7 @@ def get_last_update_id(updates):
     return max(update_ids)
 
 
-def handle_updates(updates):
+def handle_updates(updates, rapper = "kanye"):
     for update in updates["result"]:
         try:
             text = update["message"]["text"]
@@ -84,24 +84,41 @@ def handle_updates(updates):
                     # print(best_score, best_index)
                 max_score = max(rhymes.values())
                 rhymes_string = [word for word in rhymes if rhymes[word] == max_score]
-                # look if some word in rhymes_string matches the vocabulary of Kanye
-                row, kanye_words = db.get_items("kanye")
-                kanye_words = np.random.permutation(kanye_words)
-                target_word = ""
-                for kanye_word in kanye_words:
-                    if kanye_word.upper() in rhymes_string:
-                        kanye_lyrics = open("KanyeWest.txt", 'r', encoding='UTF-8').readlines()
-                        row_index = db.get_index("kanye", kanye_word)[0]
-                        message = kanye_lyrics[row_index : row_index+5]
-                        print(message)
-                        send_message("".join(message), chat)
-                        return
-                out = []
-                for i in range(5):
-                    out.append(rhymes_string[random.randint(0, len(rhymes_string)-1)])
+                # look if some word in rhymes_string matches the vocabulary of the rapper
+                if rapper == "kanye":
+                    row, kanye_words = db.get_items("kanye")
+                    kanye_words = np.random.permutation(kanye_words)
+                    target_word = ""
+                    for kanye_word in kanye_words:
+                        if kanye_word.upper() in rhymes_string:
+                            kanye_lyrics = open("KanyeWest.txt", 'r', encoding='UTF-8').readlines()
+                            row_index = db.get_index("kanye", kanye_word)[0]
+                            message = kanye_lyrics[row_index : row_index+5]
+                            print(message)
+                            send_message("".join(message), chat)
+                            return
+                    out = []
+                    for i in range(5):
+                        out.append(rhymes_string[random.randint(0, len(rhymes_string)-1)])
 
-                send_message("\n".join(out), chat)
+                    send_message("\n".join(out), chat)
+                elif rapper == "eminem":
+                    row, eminem_words = db.get_items("eminem")
+                    eminem_words = np.random.permutation(eminem_words)
+                    target_word = ""
+                    for eminem_word in eminem_words:
+                        if eminem_word.upper() in rhymes_string:
+                            eminem_lyrics = open("Eminem.txt", 'r', encoding='ISO-8859-1').readlines()
+                            row_index = db.get_index("eminem", eminem_word)[0]
+                            message = eminem_lyrics[row_index: row_index + 5]
+                            print(message)
+                            send_message("".join(message), chat)
+                            return
+                    out = []
+                    for i in range(5):
+                        out.append(rhymes_string[random.randint(0, len(rhymes_string) - 1)])
 
+                    send_message("\n".join(out), chat)
             else:
                 print("not in db")
                 message = "Yo, what doz that mean?"
@@ -151,16 +168,19 @@ def send_message(text, chat_id):
 def main():
     db.setup()
     last_update_id = None
+    rapper = "kanye"
     while True:
         updates = get_updates(last_update_id)
+
         if len(updates["result"]) > 0:
             last_update_id = get_last_update_id(updates) + 1
             [text, chat_id] = get_last_chat_id_and_text(updates)
-            if text == "!DropYourHottestMixtape" or text == "!stats":
-
-                show_statistics(updates)
+            if text == "!Eminem":
+                rapper = "eminem"
+            elif text == "!Kanye":
+                rapper = "kanye"
             else:
-                handle_updates(updates)
+                handle_updates(updates, rapper)
         time.sleep(0.5)
 
 
