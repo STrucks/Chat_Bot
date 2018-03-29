@@ -34,7 +34,7 @@ Rap God Chat Bot
 Smell ya later, alligator!
 ```
 
-##Two types of 'domain specific questions'
+## Two types of 'domain specific questions'
 
 The bot can do 2 seperate things:
 
@@ -45,7 +45,7 @@ Switching between rappers is done with !Kanye and !Eminem
 ---
 He can give a rhyme to every word that he is given in combination with the !rhyme command.
 
-#Examples
+# Examples
 ```
 Christopher Strucks
 hi
