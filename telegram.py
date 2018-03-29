@@ -226,7 +226,7 @@ def main():
                 send_message(msg, chat_id)
                 start = False
             elif text == "!help":
-                msg = "I can immitate rappers. Write somethning and I will rap to that.\n\n!Kanye makes me immitate Kanye West\n!Eminem makes me immitate Eminem\n\nIf you just want to know a rhyme, type \n\n !rhyme *word* and I will give you a rhyme to every word!\n\nType !Goodbye to let me know you are leaving."
+                msg = "I can imitate rappers. Write somethning and I will rap to that.\n\n!Kanye makes me imitate Kanye West\n!Eminem makes me imitate Eminem\n\nIf you just want to know a rhyme, type \n\n !rhyme *word* and I will give you a rhyme to every word!\n\nType !Goodbye to let me know you are leaving."
                 send_message(msg, chat_id)
             elif text == "!Goodbye":
                 msg = "Smell ya later, alligator!"
