@@ -45,7 +45,7 @@ Switching between rappers is done with !Kanye and !Eminem
 ---
 He can give a rhyme to every word that he is given in combination with the !rhyme command.
 
-# Examples
+### Examples
 ```
 Christopher Strucks
 hi
